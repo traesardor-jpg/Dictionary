@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="uz" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="dictionary Eng-Uzb — Inglizcha so'zlarni interaktiv flesh-kartalar va testlar yordamida yodlash veb-ilovasi">
+  <title>dictionary Eng-Uzb — Inglizcha So'z Yodlash</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Maxsus Stillar -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="h-full flex flex-col bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
+  <!-- Fon yorug'lik effektlari (Ambient Glows) -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/3 -right-40 w-96 h-96 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- ==================== 1. SARLAVHA (HEADER) ==================== -->
+  <header class="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
+      <!-- Logo & Nomi -->
+      <div class="flex items-center gap-3 cursor-pointer select-none" onclick="App.switchTab('flashcards')">
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/25">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-brand-600 via-purple-600 to-indigo-500 bg-clip-text text-transparent">
+              dictionary Eng-Uzb
+            </h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-brand-50 text-brand-600 dark:bg-brand-950/80 dark:text-brand-300 border border-brand-200 dark:border-brand-800 hidden sm:inline-block">
+              Client-Side
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Inglizcha so'zlarni oson va samarali yodlash</p>
+        </div>
+      </div>
+
+      <!-- O'ng tomondagi boshqaruv paneli -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Progress Ko'rsatkichi (Badge) -->
+        <div id="header-progress-badge" class="hidden md:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-medium border border-slate-200 dark:border-slate-700">
+          <div class="w-16 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+            <div id="header-progress-fill" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+          </div>
+          <span id="header-progress-text" class="text-slate-700 dark:text-slate-300">0 / 0 yodlandi</span>
+        </div>
+
+        <!-- Admin Panel tugmasi -->
+        <button onclick="App.switchTab('admin')" title="Admin Panel" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs sm:text-sm font-bold shadow-md shadow-slate-900/10 active:scale-95 transition-all">
+          <svg class="w-4 h-4 text-amber-400 dark:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+          <span>Admin</span>
+        </button>
+
+        <!-- Sozlamalar / Zaxira tugmasi -->
+        <button onclick="App.openSettingsModal()" title="Sozlamalar va Zaxira" class="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </button>
+
+        <!-- Dark / Light Mode Tugmasi -->
+        <button id="theme-toggle-btn" onclick="App.toggleTheme()" title="Tungi / Kunduzgi rejim" class="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+          <!-- Quyosh ikonasi (Light) -->
+          <svg id="theme-sun-icon" class="w-4 h-4 sm:w-5 sm:h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <!-- Oy ikonasi (Dark) -->
+          <svg id="theme-moon-icon" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Asosiy Navigatsiya Menyulari (Tabs) -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <nav class="flex space-x-1 sm:space-x-2 py-2 border-t border-slate-100 dark:border-slate-800/60 overflow-x-auto no-scrollbar">
+        <button id="tab-flashcards" onclick="App.switchTab('flashcards')" class="tab-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-brand-50 text-brand-600 dark:bg-brand-950/60 dark:text-brand-300">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+          <span>Flesh-kartalar</span>
+        </button>
+        <button id="tab-dictionary" onclick="App.switchTab('dictionary')" class="tab-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <span>So'zlar ro'yxati</span>
+          <span id="tab-words-count-badge" class="px-1.5 py-0.5 rounded-full text-[11px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">0</span>
+        </button>
+        <button id="tab-quiz" onclick="App.switchTab('quiz')" class="tab-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+          <span>Test & Mashq</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        </button>
+        <button id="tab-admin" onclick="App.switchTab('admin')" class="tab-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          <span>Admin Panel</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==================== ASOSIY KONTENT MAYDONI ==================== -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 pb-28 md:pb-8">
+
+    <!-- ==================== BO'LIM 1: FLESH-KARTALAR ==================== -->
+    <section id="section-flashcards" class="space-y-6">
+      <!-- Fleshkarta sozlamalari va progress paneli -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white/70 dark:bg-slate-900/70 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 backdrop-blur-sm shadow-sm">
+        <!-- Kategoriya tanlash -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kategoriya:</span>
+          <select id="flashcard-category-select" onchange="App.onFlashcardCategoryChange(this.value)" class="text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-3 py-1.5 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 cursor-pointer">
+            <option value="Barchasi">Barcha kategoriyalar</option>
+          </select>
+        </div>
+
+        <!-- Fleshkarta Progress ko'rsatkichi -->
+        <div class="flex items-center gap-3">
+          <span id="flashcard-counter" class="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 font-mono">1 / 32</span>
+          <div class="w-24 sm:w-36 bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div id="flashcard-progress-bar" class="bg-brand-500 h-full rounded-full transition-all duration-300" style="width: 3%;"></div>
+          </div>
+          <button onclick="App.shuffleFlashcards()" title="Kartalarni aralashtirish" class="p-1.5 rounded-lg text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3D FLESHKARTA MAYDONI -->
+      <div class="max-w-xl mx-auto">
+        <div class="flashcard-scene w-full">
+          <div id="active-flashcard" class="flashcard-card" onclick="App.toggleCardFlip()">
+            
+            <!-- OLD TOMONI (FRONT) -->
+            <div class="flashcard-face flashcard-front p-6 sm:p-8 bg-white dark:bg-slate-900 border-2 border-slate-200/90 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/40 justify-between">
+              <!-- Yuqori qator: Kategoriya va Ovoz tugmasi -->
+              <div class="flex items-center justify-between">
+                <span id="card-front-category" class="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-brand-50 text-brand-600 dark:bg-brand-950/70 dark:text-brand-300 border border-brand-200/60 dark:border-brand-800">
+                  Kategoriya
+                </span>
+                <div class="flex items-center gap-2">
+                  <span id="card-front-status-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold"></span>
+                  <button id="card-front-audio-btn" onclick="event.stopPropagation(); App.speakCurrentCard()" title="Talaffuz qilish" class="p-2.5 rounded-2xl bg-brand-50 hover:bg-brand-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-brand-600 dark:text-brand-400 transition-all hover:scale-105 active:scale-95 shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Markaz: Inglizcha so'z va transkripsiya -->
+              <div class="my-auto py-8 text-center space-y-3">
+                <h2 id="card-front-word" class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                  Word
+                </h2>
+                <p id="card-front-phonetic" class="text-base sm:text-lg text-slate-500 dark:text-slate-400 font-mono">
+                  /fəˈnet.ɪk/
+                </p>
+              </div>
+
+              <!-- Pastki qator: Aylantirish ishorasi -->
+              <div class="flex items-center justify-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <span>Tarjimasini ko'rish uchun bosing (yoki Bo'sh joy)</span>
+              </div>
+            </div>
+
+            <!-- ORQA TOMONI (BACK) -->
+            <div class="flashcard-face flashcard-back p-6 sm:p-8 bg-white dark:bg-slate-900 border-2 border-indigo-200/90 dark:border-indigo-900/60 shadow-xl shadow-indigo-500/10 dark:shadow-black/40 justify-between">
+              <!-- Yuqori qator: Inglizcha so'z va Ovoz tugmasi -->
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                  <span id="card-back-word-title" class="font-bold text-slate-900 dark:text-white text-lg sm:text-xl">Word</span>
+                  <span id="card-back-phonetic-badge" class="text-xs text-slate-500 font-mono">/.../</span>
+                </div>
+                <button onclick="event.stopPropagation(); App.speakCurrentCard()" title="Talaffuz qilish" class="p-2 rounded-xl bg-brand-50 hover:bg-brand-100 dark:bg-slate-800 text-brand-600 dark:text-brand-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                </button>
+              </div>
+
+              <!-- Markaz: O'zbekcha tarjima va Misollar -->
+              <div class="my-auto py-4 space-y-4">
+                <!-- O'zbekcha tarjima -->
+                <div class="bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 p-4 rounded-2xl text-center">
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 block mb-1">O'zbekcha tarjimasi</span>
+                  <p id="card-back-translation" class="text-xl sm:text-2xl font-extrabold text-indigo-950 dark:text-indigo-200">
+                    Tarjima
+                  </p>
+                </div>
+
+                <!-- Misol gaplar -->
+                <div id="card-back-examples-box" class="space-y-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div class="flex items-start gap-2">
+                    <span class="text-brand-600 font-bold">ENG:</span>
+                    <p id="card-back-example-eng" class="text-slate-800 dark:text-slate-200 italic"></p>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-emerald-600 font-bold">UZB:</span>
+                    <p id="card-back-example-uzb" class="text-slate-600 dark:text-slate-400"></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pastki qator: "Bilmayman" va "Bilaman" tugmalari -->
+              <div class="grid grid-cols-2 gap-3 pt-2">
+                <button id="card-btn-learning" onclick="event.stopPropagation(); App.markCurrentCardStatus('learning')" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-bold text-xs sm:text-sm hover:bg-rose-100 dark:hover:bg-rose-900/60 active:scale-95 transition-all">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  <span>Bilmayman (1)</span>
+                </button>
+                <button id="card-btn-learned" onclick="event.stopPropagation(); App.markCurrentCardStatus('learned')" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-emerald-300 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs sm:text-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/60 active:scale-95 transition-all">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Bilaman (2)</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Boshqaruv tugmalari (Oldingi, Burish, Keyingi) -->
+        <div class="flex items-center justify-center gap-4 mt-6">
+          <button onclick="App.prevCard()" title="Oldingi karta (←)" class="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            <span>Oldingi</span>
+          </button>
+
+          <button onclick="App.toggleCardFlip()" title="Kartani aylantirish (Space)" class="px-5 py-2.5 rounded-2xl bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-300 font-bold text-xs sm:text-sm shadow-sm hover:bg-brand-100 dark:hover:bg-brand-900/60 active:scale-95 transition-all">
+            Aylantirish 🔄
+          </button>
+
+          <button onclick="App.nextCard()" title="Keyingi karta (→)" class="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-all">
+            <span>Keyingi</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+
+        <!-- Klaviatura yordamchisi (Shortcuts Hint) -->
+        <div class="mt-6 text-center text-[11px] text-slate-400 dark:text-slate-500 font-mono hidden sm:block">
+          <span class="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Space</span> burish &bull; 
+          <span class="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400">&larr; / &rarr;</span> oldingi/keyingi &bull; 
+          <span class="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400">1</span> bilmayman &bull; 
+          <span class="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400">2</span> bilaman
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== BO'LIM 2: SO'ZLAR RO'YXATI & QIDIRUV ==================== -->
+    <section id="section-dictionary" class="space-y-6 hidden">
+      <!-- Qidiruv va Filtr Paneli -->
+      <div class="bg-white/80 dark:bg-slate-900/80 p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 backdrop-blur-md shadow-sm space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+          <!-- Tezkor Qidiruv Inputi -->
+          <div class="md:col-span-6 relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input 
+              type="text" 
+              id="dict-search-input"
+              oninput="App.onSearchInput(this.value)"
+              placeholder="Inglizcha so'z, o'zbekcha tarjima yoki misoldan izlash..." 
+              class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
+            >
+            <button id="dict-search-clear" onclick="App.clearSearch()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+
+          <!-- Kategoriya bo'yicha filter -->
+          <div class="md:col-span-3">
+            <select id="dict-category-filter" onchange="App.onFilterCategoryChange(this.value)" class="w-full py-2.5 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 cursor-pointer">
+              <option value="Barchasi">Barcha kategoriyalar</option>
+            </select>
+          </div>
+
+          <!-- Saralash (Sort) -->
+          <div class="md:col-span-3">
+            <select id="dict-sort-select" onchange="App.onSortChange(this.value)" class="w-full py-2.5 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 cursor-pointer">
+              <option value="az">A dan Z gacha (Alifbo)</option>
+              <option value="za">Z dan A gacha</option>
+              <option value="newest">Yangi qo'shilganlar</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Holat bo'yicha tezkor tablar (Hammasi, Yodlangan, O'rganilmoqda) -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+          <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-semibold">
+            <button id="filter-status-all" onclick="App.setStatusFilter('all')" class="status-filter-btn px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm">
+              Hammasi (<span id="count-status-all">0</span>)
+            </button>
+            <button id="filter-status-learned" onclick="App.setStatusFilter('learned')" class="status-filter-btn px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+              Yodlanganlar (<span id="count-status-learned">0</span>)
+            </button>
+            <button id="filter-status-learning" onclick="App.setStatusFilter('learning')" class="status-filter-btn px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900">
+              O'rganilmoqda (<span id="count-status-learning">0</span>)
+            </button>
+          </div>
+
+          <!-- Ko'rinish rejimi (Grid vs Table) -->
+          <div class="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <button id="btn-view-grid" onclick="App.setViewMode('grid')" title="Karta ko'rinishi" class="p-1.5 rounded-lg bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            </button>
+            <button id="btn-view-table" onclick="App.setViewMode('table')" title="Jadval ko'rinishi" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- So'zlar ko'rgazmasi konteyneri (Grid / Table) -->
+      <div id="dict-words-container">
+        <!-- Javascript dinamik render qiladi -->
+      </div>
+
+      <!-- Bo'sh natija ko'rsatkichi -->
+      <div id="dict-empty-state" class="text-center py-16 px-4 bg-white/50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 hidden">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Hech qanday so'z topilmadi</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 max-w-sm mx-auto">Qidiruv so'zini o'zgartirib ko'ring yoki yangi so'z qo'shing.</p>
+        <button onclick="App.openAddWordModal()" class="px-4 py-2 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors">
+          + Yangi so'z qo'shish
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== BO'LIM 3: TEST & MASHQ (QUIZ) ==================== -->
+    <section id="section-quiz" class="space-y-6 hidden">
+      <!-- Test boshlash / Sozlamalar paneli -->
+      <div id="quiz-setup-panel" class="max-w-2xl mx-auto bg-white/80 dark:bg-slate-900/80 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 backdrop-blur-md shadow-sm space-y-6">
+        <div class="text-center space-y-2">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">Lug'at Bo'yicha Test Mashqi</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Bilimingizni 4 ta variantdan iborat interaktiv test bilan mustahkamlang.</p>
+        </div>
+
+        <!-- Parametrlar -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+          <!-- Savollar soni -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Savollar soni</label>
+            <select id="quiz-count-select" class="w-full py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-500">
+              <option value="5">5 ta savol</option>
+              <option value="10" selected>10 ta savol</option>
+              <option value="15">15 ta savol</option>
+              <option value="20">20 ta savol</option>
+            </select>
+          </div>
+
+          <!-- Test Yo'nalishi -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Yo'nalish</label>
+            <select id="quiz-mode-select" class="w-full py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-500">
+              <option value="eng_to_uzb" selected>ENG &rarr; UZB</option>
+              <option value="uzb_to_eng">UZB &rarr; ENG</option>
+              <option value="mixed">Aralash (Mixed)</option>
+            </select>
+          </div>
+
+          <!-- Qaysi so'zlar -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">So'zlar qamrovi</label>
+            <select id="quiz-filter-select" class="w-full py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-brand-500">
+              <option value="all" selected>Barcha so'zlar</option>
+              <option value="learning">Faqat o'rganilayotganlar</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Boshlash tugmasi -->
+        <div class="pt-2">
+          <button onclick="App.startNewQuiz()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-bold text-base shadow-lg shadow-brand-500/25 active:scale-98 transition-all flex items-center justify-center gap-2">
+            <span>Testni Boshlash</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+
+        <!-- Test statistikasi qisqacha ko'rinishi -->
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-5">
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span class="text-xs text-slate-400 block mb-1">O'tkazilgan testlar</span>
+              <span id="quiz-stat-rounds" class="text-lg font-bold text-slate-800 dark:text-slate-200">0</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span class="text-xs text-slate-400 block mb-1">Eng yuqori natija</span>
+              <span id="quiz-stat-best" class="text-lg font-bold text-emerald-600 dark:text-emerald-400">0%</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+              <span class="text-xs text-slate-400 block mb-1">Eng uzun seriya</span>
+              <span id="quiz-stat-streak" class="text-lg font-bold text-orange-500">0 🔥</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAOL TEST O'YIN MAYDONI -->
+      <div id="quiz-active-container" class="max-w-2xl mx-auto space-y-4 hidden">
+        <!-- Testning jonli ko'rsatkichlari -->
+        <div class="bg-white/80 dark:bg-slate-900/80 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 backdrop-blur-md shadow-sm">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+            <div>
+              Savol: <span id="quiz-current-num" class="text-slate-900 dark:text-white font-mono text-sm">1</span> / <span id="quiz-total-num" class="font-mono">10</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-1 text-orange-500">
+                <span>🔥</span>
+                <span id="quiz-live-streak">0</span>
+              </div>
+              <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                <span>Ball:</span>
+                <span id="quiz-live-score" class="font-mono text-sm">0</span>
+              </div>
+              <button onclick="App.cancelQuiz()" title="Testni to'xtatish" class="text-slate-400 hover:text-rose-500 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
+          </div>
+          <!-- Progress bar -->
+          <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div id="quiz-progress-bar" class="bg-gradient-to-r from-brand-500 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 10%;"></div>
+          </div>
+        </div>
+
+        <!-- Bo'sh xabarnoma (agar savollar bo'lmasa) -->
+        <div id="quiz-empty-notice" class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-3 hidden">
+          <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Tanlangan parametrlar bo'yicha yetarli so'zlar topilmadi.</p>
+          <button onclick="App.cancelQuiz()" class="px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 transition-colors">Ortga qaytish</button>
+        </div>
+
+        <!-- Savol kartasi -->
+        <div id="quiz-card-container" class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border-2 border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+          <!-- Savol so'zi va fonetikasi -->
+          <div class="text-center space-y-2">
+            <span id="quiz-question-category" class="inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-50 text-brand-600 dark:bg-brand-950/70 dark:text-brand-300">
+              Kategoriya
+            </span>
+            <div class="flex items-center justify-center gap-3">
+              <h3 id="quiz-question-word" class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
+                Question
+              </h3>
+              <button id="quiz-audio-btn" title="Talaffuz qilish" class="p-2 rounded-xl bg-brand-50 hover:bg-brand-100 dark:bg-slate-800 text-brand-600 dark:text-brand-400 transition-transform active:scale-95">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+              </button>
+            </div>
+            <p id="quiz-question-phonetic" class="text-sm text-slate-500 font-mono">/hint/</p>
+          </div>
+
+          <!-- 4 Ta Variantlar Paneli -->
+          <div id="quiz-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <!-- Variantlar JS orqali joylashtiriladi -->
+          </div>
+
+          <!-- Savolga javob bergandan so'ng paydo bo'ladigan izoh bloki -->
+          <div id="quiz-feedback-box" class="hidden"></div>
+
+          <!-- Keyingi Savol Tugmasi -->
+          <div class="pt-2 flex justify-end">
+            <button id="quiz-next-btn" onclick="QuizManager.nextQuestion()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md active:scale-95 transition-all flex items-center justify-center hidden">
+              Keyingi savol &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== BO'LIM 4: ADMIN PANEL ==================== -->
+    <section id="section-admin" class="space-y-6 hidden">
+      <!-- Admin Sarlavhasi va Ta'rif -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl"></div>
+        <div class="relative z-10 flex flex-wrap items-center justify-between gap-4">
+          <div class="space-y-1.5">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-bold uppercase tracking-wider">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+              <span>Admin Boshqaruv Markazi</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Lug'at Bazasi va So'zlar Boshqaruvi</h2>
+            <p class="text-xs sm:text-sm text-slate-300 max-w-xl">
+              Ushbu paneldan yangi so'zlarni lug'atga qo'shishingiz, mavjud so'zlarni tahrirlashingiz, o'chirishingiz yoki zaxira nusxalarini olishingiz mumkin.
+            </p>
+          </div>
+          <button onclick="App.scrollToAdminAddForm()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs sm:text-sm shadow-lg active:scale-95 transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            <span>Yangi so'z kiritish</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 1. Admin Statistik Ko'rsatkichlar (4 ta karta) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm">
+          <span class="text-xs font-semibold text-slate-400 block mb-1">Jami So'zlar</span>
+          <div class="flex items-baseline justify-between">
+            <span id="admin-stat-total" class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">0</span>
+            <span class="text-xs font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/60 px-2 py-0.5 rounded-md">100%</span>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm">
+          <span class="text-xs font-semibold text-slate-400 block mb-1">Siz Qo'shgan So'zlar</span>
+          <div class="flex items-baseline justify-between">
+            <span id="admin-stat-user" class="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 font-mono">0</span>
+            <span class="text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md">Custom</span>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm">
+          <span class="text-xs font-semibold text-slate-400 block mb-1">Standart So'zlar</span>
+          <div class="flex items-baseline justify-between">
+            <span id="admin-stat-default" class="text-2xl sm:text-3xl font-extrabold text-slate-700 dark:text-slate-300 font-mono">32</span>
+            <span class="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">Baza</span>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm">
+          <span class="text-xs font-semibold text-slate-400 block mb-1">Yodlanganlar</span>
+          <div class="flex items-baseline justify-between">
+            <span id="admin-stat-learned" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">0</span>
+            <span id="admin-stat-learned-pct" class="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Yangi So'z Qo'shish Formasi (Admin Form) -->
+      <div id="admin-add-form-container" class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+              +
+            </div>
+            <div>
+              <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">Admin: Yangi So'z Qo'shish</h3>
+              <p class="text-xs text-slate-400">Kerakli maydonlarni to'ldirib, lug'atga biriktiring</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="admin-add-word-form" onsubmit="App.handleAdminAddWordSubmit(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                Inglizcha so'z <span class="text-rose-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="admin-new-word" 
+                required 
+                placeholder="Masalan: Innovation" 
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none"
+              >
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                Transkripsiya (Phonetic)
+              </label>
+              <input 
+                type="text" 
+                id="admin-new-phonetic" 
+                placeholder="Masalan: /ˌɪn.əˈveɪ.ʃən/" 
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none"
+              >
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                O'zbekcha tarjimasi <span class="text-rose-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="admin-new-translation" 
+                required 
+                placeholder="Masalan: Yangilik kiritish, ixtiro" 
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none"
+              >
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Kategoriya</label>
+              <div class="flex gap-2">
+                <select id="admin-new-category-select" onchange="App.onAdminCategorySelectChange(this.value)" class="w-1/2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500">
+                  <!-- JS orqali to'ldiriladi -->
+                </select>
+                <input 
+                  type="text" 
+                  id="admin-new-category-custom" 
+                  placeholder="Yoki yangi kategoriya..." 
+                  class="w-1/2 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none"
+                >
+              </div>
+            </div>
+            <div class="flex items-end">
+              <button type="submit" class="w-full py-2.5 px-5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                <span>So'zni Lug'atga Saqlash</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Misollar -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Inglizcha misol gap (Example)</label>
+              <textarea 
+                id="admin-new-example-eng" 
+                rows="2" 
+                placeholder="Masalan: Technological innovation changes society." 
+                class="w-full px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none resize-none"
+              ></textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Misol gapning o'zbekcha tarjimasi</label>
+              <textarea 
+                id="admin-new-example-uzb" 
+                rows="2" 
+                placeholder="Masalan: Texnologik yangiliklar jamiyatni o'zgartiradi." 
+                class="w-full px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none resize-none"
+              ></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- 3. So'zlar Bazasi Ro'yxati va Boshqaruvi -->
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-extrabold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+            <span>Barcha So'zlar Ro'yxati</span>
+            <span id="admin-table-count-badge" class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">0 ta</span>
+          </h3>
+
+          <!-- Qidiruv va Filtr -->
+          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <input 
+              type="text" 
+              id="admin-search-input" 
+              oninput="App.onAdminSearchInput(this.value)" 
+              placeholder="Admin qidiruvi..." 
+              class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-xs sm:text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none flex-1 sm:w-48"
+            >
+            <select id="admin-filter-type" onchange="App.onAdminTypeFilterChange(this.value)" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500 cursor-pointer">
+              <option value="all">Barcha so'zlar</option>
+              <option value="user">Faqat foydalanuvchi so'zlari</option>
+              <option value="default">Faqat standart so'zlar</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- So'zlar jadvali -->
+        <div id="admin-words-table-container" class="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
+          <!-- JS orqali chiziladi -->
+        </div>
+      </div>
+
+      <!-- 4. Tizim Zaxiralari va Xavfli Hudud -->
+      <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-4">
+        <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Ma'lumotlar Bazasini Zaxiralash va Tozalash</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <button onclick="StorageManager.exportData()" class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-all">
+            <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span>JSON Eksport (Yuklab olish)</span>
+          </button>
+
+          <label class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            <span>JSON Import Qilish</span>
+            <input type="file" accept=".json" onchange="App.handleImportFile(event)" class="hidden">
+          </label>
+
+          <button onclick="App.confirmResetStats()" class="p-3.5 rounded-2xl border border-amber-300 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span>Test Statistika Tozalash</span>
+          </button>
+
+          <button onclick="App.confirmResetAll()" class="p-3.5 rounded-2xl border border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 font-bold text-xs flex items-center justify-center gap-2 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            <span>Standart Bazani Tiklash</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODAL 1: YANGI SO'Z QO'SHISH ==================== -->
+  <div id="add-word-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-modal max-h-[90vh] flex flex-col">
+      <!-- Modal Sarlavhasi -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-950 dark:text-brand-400 flex items-center justify-center font-bold text-sm">
+            +
+          </div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">Lug'atga Yangi So'z Qo'shish</h3>
+        </div>
+        <button onclick="App.closeAddWordModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Forma maydonlari -->
+      <form id="add-word-form" onsubmit="App.handleAddWordSubmit(event)" class="p-6 overflow-y-auto space-y-4 flex-1">
+        <!-- Inglizcha so'z va Transkripsiya -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              Inglizcha so'z <span class="text-rose-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="new-word-input" 
+              required 
+              placeholder="Masalan: Diligent" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              Transkripsiya (Phonetic)
+            </label>
+            <input 
+              type="text" 
+              id="new-phonetic-input" 
+              placeholder="Masalan: /ˈdɪl.ɪ.dʒənt/" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+            >
+          </div>
+        </div>
+
+        <!-- O'zbekcha tarjimasi -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            O'zbekcha tarjimasi <span class="text-rose-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="new-translation-input" 
+            required 
+            placeholder="Masalan: Tirishqoq, mehnatsevar" 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+          >
+        </div>
+
+        <!-- Kategoriya tanlash yoki yangisini yozish -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Kategoriya</label>
+          <div class="flex gap-2">
+            <select id="new-category-select" onchange="App.onNewCategorySelectChange(this.value)" class="w-1/2 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500">
+              <!-- JS orqali to'ldiriladi -->
+            </select>
+            <input 
+              type="text" 
+              id="new-category-custom-input" 
+              placeholder="Yoki yangi kategoriya..." 
+              class="w-1/2 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+            >
+          </div>
+        </div>
+
+        <!-- Misol gaplar (Inglizcha va O'zbekcha) -->
+        <div class="space-y-3 pt-1">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              Inglizcha misol gap (Example)
+            </label>
+            <textarea 
+              id="new-example-eng-input" 
+              rows="2" 
+              placeholder="Masalan: The diligent student won first place in the olympiad." 
+              class="w-full px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              Misol gapning o'zbekcha tarjimasi
+            </label>
+            <textarea 
+              id="new-example-uzb-input" 
+              rows="2" 
+              placeholder="Masalan: Tirishqoq talaba olimpiadada birinchi o'rinni egalladi." 
+              class="w-full px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Forma tugmalari -->
+        <div class="pt-4 flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="App.closeAddWordModal()" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            Bekor qilish
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-brand-500/25 active:scale-95 transition-all">
+            So'zni saqlash
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: TEST NATIJASI (QUIZ RESULT) ==================== -->
+  <div id="quiz-result-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 text-center animate-modal space-y-5">
+      <!-- Katta foiz nishoni -->
+      <div class="relative w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-xl shadow-brand-500/30">
+        <span id="result-percent" class="text-3xl font-extrabold font-mono">100%</span>
+      </div>
+
+      <div class="space-y-1">
+        <h3 id="result-title" class="text-2xl font-extrabold text-slate-900 dark:text-white">A'lo natija! 🏆</h3>
+        <p id="result-score-text" class="text-sm font-semibold text-brand-600 dark:text-brand-400">10 / 10 to'g'ri javob</p>
+        <p id="result-desc" class="text-xs text-slate-500 dark:text-slate-400">Lug'at boyligingiz ajoyib darajada mustahkamlandi!</p>
+      </div>
+
+      <!-- Rekord seriya -->
+      <div class="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900/40 text-xs font-semibold text-orange-700 dark:text-orange-300">
+        <span>Maksimal seriya (streak):</span>
+        <span id="result-max-streak" class="font-bold">0</span> 🔥
+      </div>
+
+      <!-- Xatolar ro'yxati -->
+      <div id="result-mistakes-list" class="text-left hidden"></div>
+
+      <!-- Tugmalar -->
+      <div class="pt-2 flex flex-col gap-2">
+        <button onclick="App.restartQuizFromModal()" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md active:scale-95 transition-all">
+          Yana bitta test boshlash
+        </button>
+        <button onclick="App.closeQuizResultModal()" class="w-full py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          Bosh sahifaga qaytish
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: SOZLAMALAR VA ZAXIRA (SETTINGS) ==================== -->
+  <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 animate-modal space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-slate-900 dark:text-white">Sozlamalar va Zaxira</h3>
+        <button onclick="App.closeSettingsModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-sm">
+        <!-- Tovush effektlari -->
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="font-semibold text-slate-800 dark:text-slate-200 block">Interaktiv tovush effektlari</span>
+            <span class="text-xs text-slate-400">To'g'ri va noto'g'ri javob signallari</span>
+          </div>
+          <input type="checkbox" id="setting-sound-toggle" onchange="App.toggleSoundEffects(this.checked)" checked class="w-5 h-5 accent-brand-600 rounded cursor-pointer">
+        </div>
+
+        <!-- Zaxira (Backup / Restore) -->
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <span class="font-semibold text-slate-800 dark:text-slate-200 block">Ma'lumotlar zaxirasi (JSON)</span>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="StorageManager.exportData()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1.5 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              <span>Eksport (Yuklab olish)</span>
+            </button>
+            <label class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              <span>Import qilish</span>
+              <input type="file" id="import-json-input" accept=".json" onchange="App.handleImportFile(event)" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <!-- Dastlabki holatga qaytarish (Reset) -->
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+          <span class="font-semibold text-rose-600 block mb-1">Xavfli hudud</span>
+          <button onclick="App.confirmResetAll()" class="w-full py-2.5 px-4 rounded-xl border border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 text-xs font-bold transition-colors">
+            Standart holatga qaytarish (Reset)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: SO'ZNI TAHRIRLASH (EDIT WORD) ==================== -->
+  <div id="edit-word-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-modal max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400 flex items-center justify-center font-bold text-sm">
+            ✎
+          </div>
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">So'zni Tahrirlash</h3>
+        </div>
+        <button onclick="App.closeEditWordModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <form id="edit-word-form" onsubmit="App.handleEditWordSubmit(event)" class="p-6 overflow-y-auto space-y-4 flex-1">
+        <input type="hidden" id="edit-word-id">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Inglizcha so'z <span class="text-rose-500">*</span></label>
+            <input type="text" id="edit-word-input" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Transkripsiya</label>
+            <input type="text" id="edit-phonetic-input" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">O'zbekcha tarjimasi <span class="text-rose-500">*</span></label>
+          <input type="text" id="edit-translation-input" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Kategoriya</label>
+          <div class="flex gap-2">
+            <select id="edit-category-select" onchange="App.onEditCategorySelectChange(this.value)" class="w-1/2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500">
+            </select>
+            <input type="text" id="edit-category-custom-input" placeholder="Yangi kategoriya..." class="w-1/2 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none">
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-1">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Inglizcha misol gap</label>
+            <textarea id="edit-example-eng-input" rows="2" class="w-full px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none resize-none"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Misol tarjimasi</label>
+            <textarea id="edit-example-uzb-input" rows="2" class="w-full px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="App.closeEditWordModal()" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            Bekor qilish
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs sm:text-sm font-bold shadow-md active:scale-95 transition-all">
+            O'zgarishlarni saqlash
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MOBIL PASTKI MENYU (BOTTOM NAVIGATION) ==================== -->
+  <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 px-2 py-1.5 flex items-center justify-around shadow-xl">
+    <button id="mob-tab-flashcards" onclick="App.switchTab('flashcards')" class="mob-tab-btn flex-1 flex flex-col items-center py-1.5 px-2 rounded-xl text-brand-600 dark:text-brand-400 transition-colors">
+      <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+      <span class="text-[10px] font-bold">Kartalar</span>
+    </button>
+    <button id="mob-tab-dictionary" onclick="App.switchTab('dictionary')" class="mob-tab-btn flex-1 flex flex-col items-center py-1.5 px-2 rounded-xl text-slate-500 dark:text-slate-400 transition-colors">
+      <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+      <span class="text-[10px] font-bold">Lug'at</span>
+    </button>
+    <button id="mob-tab-quiz" onclick="App.switchTab('quiz')" class="mob-tab-btn flex-1 flex flex-col items-center py-1.5 px-2 rounded-xl text-slate-500 dark:text-slate-400 transition-colors">
+      <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+      <span class="text-[10px] font-bold">Test</span>
+    </button>
+    <button id="mob-tab-admin" onclick="App.switchTab('admin')" class="mob-tab-btn flex-1 flex flex-col items-center py-1.5 px-2 rounded-xl text-slate-500 dark:text-slate-400 transition-colors">
+      <svg class="w-5 h-5 mb-0.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+      <span class="text-[10px] font-bold">Admin</span>
+    </button>
+  </nav>
+
+  <!-- TOAST XABARNOMALAR KONTEYNERI -->
+  <div id="toast-container" class="fixed bottom-16 md:bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================== JAVASCRIPT MODULLARI ==================== -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
